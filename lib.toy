@@ -1,0 +1,77 @@
+fun getRestrictedNumberInput(message, lower, upper) {
+  while (true) {
+    let input = number(input(message));
+    if (input == nil) {
+      echo "You should provide a number: ";
+      continue;
+    }
+    if (input < lower or input > upper) {
+      echo "Input should be between " + lower + " and " + upper;
+      continue;
+    }
+    return trunc(input);
+  }
+}
+
+fun typeout(message) {
+  let letters = chars(message);
+  for (i from 0 to size(letters)) {
+    print(letters[i]);
+    wait(50);
+  }
+  input();
+  cls();
+}
+
+fun inArray(array, elem) {
+  for (i from 0 to size(array)) {
+    if (array[i] == elem) return true;
+  }
+  return false;
+}
+
+fun overlap(array1, array2) {
+  let output = 0;
+  for (i from 0 to size(array1)) {
+    if (inArray(array2, array1[i])) {
+      output += 1;
+    }
+  }
+  return output;
+}
+
+fun Stack() {
+  let base = [];
+
+  fun push(elem) {
+    let nextBase = [elem];
+    for (i from 0 to size(base)) {
+      nextBase += base[i];
+    }
+    base = nextBase;
+  }
+
+  fun pop() {
+    let first = base[0];
+    base -= first;
+    return first;
+  }
+
+  fun empty() {
+    return size(base) <= 0;
+  }
+
+  return obj {
+    "push": push,
+    "pop": pop,
+    "empty": empty,
+  };
+}
+
+exports = obj {
+  "getRestrictedNumberInput": getRestrictedNumberInput,
+  "typeout": typeout,
+  "inArray": inArray,
+  "overlap": overlap,
+  "Stack"  : Stack,
+};

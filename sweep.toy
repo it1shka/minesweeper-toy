@@ -1,0 +1,128 @@
+import lib;
+
+fun generateBoardPositions(boardSize) {
+  let positions = [];
+  for (i from 0 to boardSize) {
+    for (j from 0 to boardSize) {
+      positions += [i, j];
+    }
+  }
+  return positions;
+}
+
+fun generateBombs(boardSize, bombsAmount) {
+  let positions = generateBoardPositions(boardSize);
+  let bombs = [];
+  for (i from 0 to bombsAmount) {
+    let randomIndex = randint(0, size(positions) - 1);
+    let bomb = positions[randomIndex];
+    bombs += bomb;
+    positions -= bomb;
+  }
+  return bombs;
+}
+
+fun generateNeighbors(i, j) {
+  let output = [];
+  for (ip from -1 to 2) {
+    for (jp from -1 to 2) {
+      output += [i + ip, j + jp];
+    }
+  }
+  return output;
+}
+
+fun generateNumberField(boardSize, bombs) {
+  let field = [];
+  for (i from 0 to boardSize) {
+    field += [0] * boardSize;
+  }
+
+  for (i from 0 to boardSize) {
+    for (j from 0 to boardSize) {
+      let neighbors = generateNeighbors(i, j);
+      let count = lib.overlap(neighbors, bombs);
+      field[i][j] = count;
+    }
+  }
+
+  return field;
+}
+
+fun createFogField(boardSize) {
+  let fog = [];
+  for (i from 0 to boardSize) {
+    fog += [true] * boardSize;
+  }
+  return fog;
+}
+
+fun Minesweeper(boardSize, bombsAmount) {
+  let bombs = generateBombs(boardSize, bombsAmount);
+  let numberField = generateNumberField(boardSize, bombs);
+  let fogField = createFogField(boardSize);
+
+  fun renderField() {
+    for (row from 0 to boardSize) {
+      for (col from 0 to boardSize) {
+        if (fogField[row][col]) {
+          print("#");
+          continue;
+        }
+        if (lib.inArray(bombs, [row, col])) {
+          print("*");
+          continue;
+        }
+        let count = numberField[row][col];
+        if (count <= 0) {
+          print(".");
+          continue;
+        }
+        print(count);
+      }
+      println();
+    }
+  }
+
+  fun reveal(row, col) {
+    let stack = lib.Stack();
+    stack.push([row, col]);
+
+    while (not stack.empty()) {
+      let last = stack.pop();
+      let lastRow = last[0];
+      let lastCol = last[1];
+      if (not fogField[lastRow][lastCol]) continue;
+      fogField[lastRow][lastCol] = false;
+      if (numberField[lastRow][lastCol] > 0) continue;
+      let neighbors = generateNeighbors(lastRow, lastCol);
+      for (i from 0 to size(neighbors)) {
+        let neighbor = neighbors[i];
+        let row = neighbor[0];
+        let col = neighbor[1];
+        if (row < 0 or row >= boardSize or col < 0 or col >= boardSize) continue;
+        stack.push([row, col]);
+      }
+    }
+  }
+
+  fun status() {
+    let unrevealed = [];
+    for (i from 0 to boardSize) {
+      for (j from 0 to boardSize) {
+        if (fogField[i][j]) unrevealed += [i, j];
+      }
+    }
+    if (lib.overlap(unrevealed, bombs) != size(bombs)) return false;
+    if (size(unrevealed) == size(bombs)) return true;
+    return nil;
+  }
+
+  return obj {
+    "renderField": renderField,
+    "reveal": reveal,
+    "status": status,
+  };
+}
+
+exports = Minesweeper;

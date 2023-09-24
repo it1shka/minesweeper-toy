@@ -1,0 +1,35 @@
+import lib;
+import sweep as Minesweeper;
+
+fun startGame(boardSize, bombsAmount) {
+  let sw = Minesweeper(boardSize, bombsAmount);
+  while (true) {
+    cls();
+    sw.renderField();
+    let status = sw.status();
+    if (status == true) {
+      echo "You won!";
+      break;
+    }
+    if (status == false) {
+      echo "You lost!";
+      break;
+    }
+    let row = lib.getRestrictedNumberInput("Please, provide row: ", 0, boardSize - 1);
+    let col = lib.getRestrictedNumberInput("Please, provide col: ", 0, boardSize - 1);
+    sw.reveal(row, col);
+  }
+}
+
+fun main() {
+  cls();
+  let boardSize = lib.getRestrictedNumberInput("Please, enter board size: ", 5, 15);
+  let bombsAmount = lib.getRestrictedNumberInput("Please, enter bombs amount: ", 5, 10);
+  wait(500);
+  cls();
+  wait(500);
+  lib.typeout("Board size: " + boardSize + "\nBombs amount: " + bombsAmount + "\nPress Enter to Start!");
+  startGame(boardSize, bombsAmount);
+}
+
+main();
